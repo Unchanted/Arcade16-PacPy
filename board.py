@@ -4,15 +4,15 @@ from enemy import Enemy
 from wall import Wall
 
 
+# Just Testing with a basic board at first
 def create_board():
     ''' Sets up the board with the numbers, that will represent the objects'''
     new_board = \
-     # I HATE THIS :SOB:, there should be a better way smh 
     [ [0 for i in range(28)],
       ([0] + [1 for i in range(12)] + [0]) * 2,
       [0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0],
-      [0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0],
-      [0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0], 
+      [0, 3, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 3, 0],
+      [0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0], # replace 9 with 1
       [0] + [1 for i in range(26)] + [0],
       [0, 1, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 1, 0],
       [0, 1, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 1, 0],
@@ -31,7 +31,7 @@ def create_board():
       ([0] + [1 for i in range(12)] + [0]) * 2,
       [0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0],
       [0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0],
-      [0, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 9, None, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0],
+      [0, 3, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 9, None, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 3, 0, 0],
       [0, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 0],
       [0, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 0],
       [0, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 0],
@@ -40,10 +40,11 @@ def create_board():
       [0] + [1 for i in range(26)] + [0],
       [0 for i in range(28)]]
 
-    # 0 - Wall object
-    # 1 - Pickup object,
-    # 9 - Pacman object
+    # 0 is a Wall object
+    # 1 is a Pickup object,
+    # 9 is a Pacman object
 
+    # There will be more objects, but until we have movement, we are just testing it through a small border at first
 
     # Idea
     # 2 will be Pickup objects with Boost == True
@@ -73,6 +74,7 @@ class Board():
 
     
     def updateGamestate(self, x, y):
+        #self.validateScore(x, y)
         self.validateMovement(x, y)
         
         if self.validatePath( self.pacman.direction ):
@@ -117,6 +119,9 @@ class Board():
                 elif self[i][j] == 1:
                     gameRow.append( Pickup(j, i) )
 
+                elif self[i][j] == 3:
+                    gameRow.append( Pickup(j, i, True) )
+                    
                 elif self[i][j] == 9:
                     gameRow.append( Pacman(j, i) )
 
@@ -154,9 +159,9 @@ class Board():
             self.Gamestate[self.pacman.y][self.pacman.x] = self.pacman
 
         else:
+            self.pacman.updateScore( self.Gamestate[x][y] )
             self.Gamestate[x][y] = self.pacman
 
-    
     def square_height(self) -> float:
         ''' Returns the height of each individual square in the level. '''
         return ( self._window_height - self._window_border ) / len(self)
