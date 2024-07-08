@@ -86,3 +86,92 @@ class Board():
 
         elif self.pacmanLocation.direction == 'Up':
             self.Gamestate[x+1][y] = None
+
+    def updateObjects(self):
+        ''' Updates the gameObjects set to the objects that are inside the current Gamestate.
+            Also updates where the current location of Pacman is on the board. '''
+        self.gameObjects = { objs for rows in self.Gamestate for objs in rows if objs is not None }
+        self.pacmanLocation = self.findPacman()
+        self.updateGamestate(self.pacmanLocation.y, self.pacmanLocation.x)
+
+
+    def findPacman(self) -> Pacman:
+        ''' Returns the Pacman object on the board. '''
+        for rows in self.Gamestate:
+            for gameObj in rows:
+                if type(gameObj) == Pacman:
+                    return gameObj
+
+    def _pacmanBoard(self, height, width) -> [list]:
+        ''' Takes the board of numbers, and easily sets up the coordinates of each object,
+            as manually typing each object with their coordinates would take way too long. '''
+        gameBoard = []
+        
+        for i in range(len(self)):
+            gameRow = []
+            for j in range(len(self[i])):
+                if self[i][j] == 0:
+                    gameRow.append( Wall(j, i) )
+                                         
+                elif self[i][j] == 1:
+                    gameRow.append( Pickup(j, i) )
+
+                elif self[i][j] == 9:
+                    gameRow.append( Pacman(j, i) )
+
+                else:
+                    gameRow.append( None )
+
+            gameBoard.append(gameRow)
+
+        return gameBoard
+
+    def validatePath(self) -> bool:
+        pacman = self.findPacman()
+        
+        if pacman.direction == 'Left':
+            return type(self.Gamestate[pacman.y][pacman.x - 1]) != Wall
+
+        elif pacman.direction == 'Right':
+            return type(self.Gamestate[pacman.y][pacman.x + 1]) != Wall
+
+        elif pacman.direction == 'Down':
+            return type(self.Gamestate[pacman.y + 1][pacman.x]) != Wall
+
+        elif pacman.direction == 'Up':
+            return type(self.Gamestate[pacman.y - 1][pacman.x]) != Wall
+
+
+        
+
+    def square_height(self) -> float:
+        ''' Returns the height of each individual square in the level. '''
+        return ( self._window_height - self._window_border ) / len(self)
+
+    def square_width(self) -> float:
+        '' 'Returns the width of each individual square in the level. '''
+        return self._window_width / self.board_width()
+
+    def board_width(self) -> int:
+        ''' Returns the width of the board, [0] as an index since all list inside are same length. '''
+        return len(self.Gamestate[0])
+
+    def __len__(self) -> int:
+        ''' Overrides len() function, and also returns the height of the board. '''
+        return len(self.Gamestate)
+
+    def __getitem__(self, key):
+        ''' Overrides the __getitem__() so that we can return an index of the Gamestate list. '''
+        return self.Gamestate[key]
+    
+    def __iter__(self):
+        ''' Overrides the __iter__() so that we can use a for loop on the board object. '''
+        for row in self.Gamestate:
+            yield row
+
+        
+
+
+
+
+
