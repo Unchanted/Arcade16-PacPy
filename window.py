@@ -212,5 +212,5 @@ class Window():
 
     def run(self):
         self.delay_beginning()
-        self._master.after(2000, self.update) # put again here to allow mainloop() to still occur and also call gameloop
+        self._master.after(200, self.update) # put again here to allow mainloop() to still occur and also call gameloop
         self._master.mainloop()
