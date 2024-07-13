@@ -75,13 +75,13 @@ class Board():
         ''' While the game is not over, the board squares are updated accordingly. If
             self._game_over returns True, then Pacman's location is set to None to show
             the animation that he is dead and the game is done. '''
-
         if not self.game_over:
             self._update_board_square(y, x)
 
             if _DEBUG:
+                pass
                 #self.surrounded_print()
-                self.pacman_and_enemy_print()
+                #self.pacman_and_enemy_print()
                 #self.total_enemy_print()
                 #self.total_board_print()
             
@@ -121,8 +121,7 @@ class Board():
 
         if self.location_has_changed(enemy, enemy.last_location):
             if enemy.pickup_memory is not None:
-                self[y][x] = enemy.pickup_memory
-                enemy.discard_pickup()
+                self.restore_pickup(enemy, y, x)
 
             else:
                 self[y][x] = None
@@ -133,6 +132,17 @@ class Board():
             the enemy's starting location. '''
         enemy.initial_position()
         self[enemy.y][enemy.x] = enemy
+
+        if enemy.pickup_memory is not None:
+            last_y, last_x = enemy.last_location
+            self.restore_pickup(enemy, last_y, last_x)
+        
+
+    def restore_pickup(self, enemy, y, x):
+        ''' Restores a pickup from an enemy's memory, given a y and x coordinate. This function
+            is called when an enemy dies, or an enemy moves locations. '''
+        self[y][x] = enemy.pickup_memory
+        enemy.discard_pickup()
     
     # Game Update Functions #
     def update_board(self):
@@ -167,9 +177,9 @@ class Board():
             if self.location_has_changed(game_object, game_object.last_location):
                 previous_y, previous_x = game_object.last_location
 
-                if type(self[previous_y][previous_x]) == None:
+                if type(self[previous_y][previous_x]) == None and not self.pacman.is_respawning:
                     self[previous_y][previous_x] = None
-
+                    
     def update_directions(self):
         ''' This function is what allows smoother movement when wanting to change Pacman's
             direction. It checks if Pacman has queue'd another direction that wasn't possible
@@ -464,7 +474,7 @@ class Board():
           [0, 0, 0, 0, 0, 0, 1, 0, 0, None, 0, None, 0, 0, 0, 0, None, 0, None, 0, 0, 1, 0, 0, 0, 0, 0, 0],
           [0, 0, 0, 0, 0, 0, 1, 0, 0, None, 0, None, None, None, None, None, None, 0, None, 0, 0, 1, 0, 0, 0, 0, 0, 0],
           [None, None, None, None, None, None, 1, 0, 0, None, 0, None, None, None, None, None, None, 0, None, 0, 0, 1, None, None, None, None, None, None],
-          [0, 0, 0, 0, 0, 0, 1, 0, 0, None, 0, None, 5, 6, 7, 8, None, 0, None, 0, 0, 1, 0, 0, 0, 0, 0, 0], #          [0, 0, 0, 0, 0, 0, 1, 0, 0, None, 0, None, 5, 6, 7, 8, None, 0, None, 0, 0, 1, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 1, 0, 0, None, 0, None, 5, 6, 7, 8, None, 0, None, 0, 0, 1, 0, 0, 0, 0, 0, 0],
           [None, None, None, None, None, 0, 1, 0, 0, None, 0, 0, 0, 0, 0, 0, 0, 0, None, 0, 0, 1, 0, None, None, None, None],
           [None, None, None, None, None, 0, 1, 0, 0, None, None, None, None, None, None, None, None, None, None, 0, 0, 1, 0, None, None, None, None, None],
           [None, None, None, None, None, 0, 1, 0, 0, None, 0, 0, 0, 0, 0, 0, 0, 0, None, 0, 0, 1, 0, None, None, None, None, None],
@@ -472,7 +482,7 @@ class Board():
           ([0] + [1 for i in range(12)] + [0]) * 2,
           [0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0],
           [0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0],
-          [0, 3, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 9, None, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 3, 0, 0],
+          [0, 3, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, None, 9, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 3, 0, 0],
           [0, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 0],
           [0, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 0],
           [0, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 0],
